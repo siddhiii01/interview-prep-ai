@@ -8,8 +8,12 @@ export function InterviewSetup() {
   const [profile,setProfile] = useState({
     role: "",
     experience: "",
-    tech: []
+    tech: [],
+    level: "easy"
   })
+  const [question,setQuestion] = useState("");
+  const [answer,setAnswer] = useState("");
+  const [evaluate,setEvaluate] = useState(null);
 
   const startSetup = async() => {  
     setMessages([
@@ -94,7 +98,7 @@ export function InterviewSetup() {
         level: "easy"
       });
       console.log("backedn response",res);
-
+      setQuestion(res.data.question);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: res.data.question }
@@ -108,6 +112,53 @@ export function InterviewSetup() {
         }
       ]);
     }
+    setStep("user_answer")
+  }
+
+  const handleEvaluate = async() => {
+    try {
+      const res = await axios.post( "http://localhost:3000/api/interview/evaluate-answer",{
+        question,
+        answer,
+        experience:profile.experience,
+        role: profile.role,
+        level: profile.level
+      })
+
+      const evaluated = res.data;
+      setEvaluate(res.data);
+
+      setProfile((prev) => ({
+        ...prev,
+        level: evaluated.level
+      }))
+
+      setMessages(prev => [
+        ...prev,
+        { role:"assistant", content:`Score: ${evaluated.score}` },
+        { role:"assistant", content:`Feedback: ${evaluated.feedback}`},
+        { role:"assistant", content:`Ideal answer: ${evaluated.idealAnswer}`}
+      ]);
+
+      // next que
+      const nextQ = await axios.post("http://localhost:3000/api/interview/get-question", {
+        experience:profile.experience,
+        role: profile.role,
+        tech: profile.tech,
+        level: res.level
+      })
+
+      console.log("nesxt q",nextQ);
+      setQuestion(nextQ.data.question);
+      setAnswer("");
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: nextQ.data.question }
+      ]);
+
+    } catch(err) {
+      console.log("handleEvaluate() failed",err);
+    }
   }
 
   return (
@@ -116,7 +167,12 @@ export function InterviewSetup() {
         <button onClick={startSetup}>Start Interview Setup</button>
       )}
 
-      {step!=="start" && <MessageThreadCollapsible/>}
+      {/* {step!=="start" && <MessageThreadCollapsible/>} */}
+      {messages.map((msg,idx) => (
+        <div key={idx}>
+          <b>{msg.role} </b>{msg.content}
+        </div>
+      ))}
 
       {step==="experience" && (
         <>
@@ -162,11 +218,18 @@ export function InterviewSetup() {
 
           <button onClick={handleSaveData}>
             Start Practice
-        </button>
+          </button>
         </div>
       )}
       
-      
+      {step==="user_answer" && (
+      <div>
+        <textarea type="text" placeholder="Type your answer" value={answer} onChange={(e) => setAnswer(e.target.value)} style={{width:"80%",height:"80px",marginTop:"20px"}}/>
+        <br />
+        <button onClick={handleEvaluate}>Submit answer</button>
+
+      </div>
+      )}
     </div>
   )
 } 
