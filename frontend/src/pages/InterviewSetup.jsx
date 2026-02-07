@@ -50,11 +50,11 @@ function ChatInterface() {
       setWaiting(true);
 
       // Display question
-      addMsg("assistant", `📝 Question (${profile.level.toUpperCase()})\n\n${q}\n\n💬 Type your answer below!`);
+      addMsg("assistant", `Question (${profile.level.toUpperCase()})\n\n${q}\n\nType your answer below!`);
 
     } catch (err) {
       console.error(err);
-      addMsg("assistant", "❌ Backend error - check server on port 3000");
+      addMsg("assistant", "Backend error - check server on port 3000");
     }
   };
 
@@ -75,14 +75,14 @@ function ChatInterface() {
       setProfile(p => ({ ...p, level }));
 
       // Display evaluation
-      const scoreColor = score >= 8 ? "🟢" : score >= 5 ? "🟡" : "🔴";
-      const evalMsg = `${scoreColor} **Evaluation**\n\n**Score: ${score}/10**\n\n${feedback}\n\n💡 **Better Answer:**\n${idealAnswer}\n\n**Next Level:** ${level.toUpperCase()}\n\n_Type "next" when ready!_`;
+      const scoreColor = score >= 8 ? "green" : score >= 5 ? "yellow" : "red";
+      const evalMsg = `${scoreColor} **Evaluation**\n\n**Score: ${score}/10**\n\n${feedback}\n\n **Better Answer:**\n${idealAnswer}\n\n**Next Level:** ${level.toUpperCase()}\n\n_Type "next" when ready!_`;
       
       addMsg("assistant", evalMsg);
 
     } catch (err) {
       console.error(err);
-      addMsg("assistant", "❌ Evaluation failed");
+      addMsg("assistant", "Evaluation failed");
     }
   };
 
@@ -118,14 +118,14 @@ function ChatInterface() {
     }
 
     setStarted(true);
-    addMsg("assistant", `🎯 **Interview Started!**\n\nProfile: ${profile.experience}, ${profile.role}\nTech: ${profile.tech.join(", ")}\n\nGetting first question...`);
+    addMsg("assistant", `**Interview Started!**\n\nProfile: ${profile.experience}, ${profile.role}\nTech: ${profile.tech.join(", ")}\n\nGetting first question...`);
     
     setTimeout(() => getQuestion(), 1000);
   };
 
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px", fontFamily: "system-ui" }}>
-      <h1 style={{ textAlign: "center", color: "#007bff" }}>🎯 Interview Coach</h1>
+      <h1 style={{ textAlign: "center", color: "#007bff" }}>Interview Coach</h1>
       <p style={{ textAlign: "center", color: "#666", marginBottom: "30px" }}>
         Powered by Tambo AI + Custom Backend
       </p>
@@ -137,7 +137,7 @@ function ChatInterface() {
           borderRadius: "8px",
           border: "1px solid #dee2e6",
         }}>
-          <h3 style={{ marginTop: 0 }}>📋 Setup Profile</h3>
+          <h3 style={{ marginTop: 0 }}>Setup Profile</h3>
 
           <div style={{ marginBottom: "20px" }}>
             <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>Experience:</label>
@@ -222,7 +222,7 @@ function ChatInterface() {
                 : "not-allowed",
             }}
           >
-            🚀 Start Interview
+            Start Interview
           </button>
         </div>
       )}
@@ -271,7 +271,7 @@ function ChatInterface() {
                 fontStyle: "italic",
                 display: "inline-block",
               }}>
-                ⏳ Tambo is thinking...
+                Tambo is thinking...
               </div>
             )}
           </div>
@@ -310,7 +310,7 @@ function ChatInterface() {
           </div>
 
           <p style={{ textAlign: "center", color: "#6c757d", fontSize: "13px", marginTop: "10px" }}>
-            {waiting ? "💡 Answer the question" : "💬 Type 'next' for next question"}
+            {waiting ? "Answer the question" : "Type 'next' for next question"}
           </p>
         </>
       )}
@@ -320,32 +320,6 @@ function ChatInterface() {
 
 export function InterviewSetup() {
   const apiKey = import.meta.env.VITE_TAMBO_API_KEY;
-
-  if (!apiKey) {
-    return (
-      <div style={{
-        padding: "60px",
-        maxWidth: "600px",
-        margin: "100px auto",
-        textAlign: "center",
-        backgroundColor: "#fff3cd",
-        borderRadius: "8px",
-      }}>
-        <h2>⚙️ Setup Required</h2>
-        <p>Add to .env:</p>
-        <code style={{
-          display: "block",
-          padding: "15px",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "5px",
-          fontFamily: "monospace",
-        }}>
-          VITE_TAMBO_API_KEY=your_key
-        </code>
-        <p>Get key: <a href="https://tambo.co">tambo.co</a></p>
-      </div>
-    );
-  }
 
   return (
     <TamboProvider apiKey={apiKey} systemPrompt={systemPrompt}>
